@@ -34,18 +34,8 @@ public class DeleteDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.delete_item_prompt)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogPositiveClick(DeleteDialogFragment.this);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogNegativeClick(DeleteDialogFragment.this);
-                    }
-                });
+                .setPositiveButton(R.string.delete, (dialog, which) -> listener.onDialogPositiveClick(DeleteDialogFragment.this))
+                .setNegativeButton(R.string.cancel, (dialog, which) -> listener.onDialogNegativeClick(DeleteDialogFragment.this));
         return builder.create();
     }
 }
