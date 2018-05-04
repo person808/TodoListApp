@@ -10,7 +10,6 @@ public class TodoViewModel extends ViewModel {
 
     private TodoItemDao dao;
     private LiveData<List<TodoItem>> todoItems;
-
     public TodoViewModel() {
         DaoRepository daoRepository = new DaoRepository();
         dao = daoRepository.getDao();
@@ -22,6 +21,10 @@ public class TodoViewModel extends ViewModel {
 
     public LiveData<List<TodoItem>> getTodoItems() {
         return todoItems;
+    }
+
+    public LiveData<TodoItem> getTodoItem(int id) {
+        return dao.getTodoItem(id);
     }
 
     public void addTodoItem(TodoItem item) {
