@@ -3,6 +3,7 @@ package com.example.todolist;
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity
         implements TodoItemAdapter.OnListInteractionListener, DeleteDialogFragment.DeleteDialogListener {
 
+    public static final String EXTRA_MESSAGE = "com.example.TodoList.ID";
     private TodoViewModel todoViewModel;
     private TodoItem selectedItem;
 
@@ -60,6 +62,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(TodoItem item) {
+
+        Intent intent = new Intent(this, ViewTodoActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, item.getId());
+        startActivity(intent);
+
     }
 
     @Override

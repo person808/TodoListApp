@@ -19,6 +19,9 @@ public interface TodoItemDao {
     @Query("SELECT * FROM todoitem")
     LiveData<List<TodoItem>> getAll();
 
+    @Query("SELECT * FROM todoitem WHERE id = :id")
+    LiveData<TodoItem> getTodoItem(int id);
+
     @Insert
     void insertAll(TodoItem... todoItems);
 
