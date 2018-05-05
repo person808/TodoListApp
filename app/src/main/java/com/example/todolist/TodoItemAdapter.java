@@ -108,10 +108,10 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             dateView.setText(Util.dateToString(item.getDate()));
 
             view.setOnClickListener((View v) -> {
-                selectItem(item);
                 if (listener != null && !multiSelect) {
                     listener.onItemClick(item);
                 }
+                selectItem(item);
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
@@ -141,10 +141,12 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_done:
+                    List<ViewHolder> itemsToRemove = new ArrayList<>();
                     for (ViewHolder viewHolder : selectedItems) {
                         todoViewModel.deleteTodoItem(viewHolder.todoItem);
-                        selectedItems.remove(viewHolder);
+                        itemsToRemove.add(viewHolder);
                     }
+                    selectedItems.removeAll(itemsToRemove);
                     mode.finish();
                     break;
             }
