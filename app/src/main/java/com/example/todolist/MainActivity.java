@@ -1,14 +1,9 @@
 package com.example.todolist;
 
-import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +12,9 @@ import android.support.v7.widget.TooltipCompat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
-        implements TodoItemAdapter.OnListInteractionListener, DeleteDialogFragment.DeleteDialogListener {
+        implements TodoItemAdapter.OnListInteractionListener {
 
     private TodoViewModel todoViewModel;
-    private TodoItem selectedItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +41,7 @@ public class MainActivity extends AppCompatActivity
         });
         TooltipCompat.setTooltipText(fab, getString(R.string.fab_hint));
 
-        TodoItemAdapter adapter = new TodoItemAdapter(this);
+        TodoItemAdapter adapter = new TodoItemAdapter(this, todoViewModel);
         recyclerView.setAdapter(adapter);
 
         todoViewModel.refreshTodoItems();
@@ -64,21 +58,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onItemLongClick(TodoItem item) {
-        selectedItem = item;
-        DialogFragment dialog = new DeleteDialogFragment();
-        dialog.show(getSupportFragmentManager(), "DeleteDialogFragment");
         return true;
-    }
-
-    @Override
-    public void onDialogPositiveClick(DialogFragment dialog) {
-        todoViewModel.deleteTodoItem(selectedItem);
-        todoViewModel.refreshTodoItems();
-        dialog.dismiss();
-    }
-
-    @Override
-    public void onDialogNegativeClick(DialogFragment dialog) {
-        dialog.dismiss();
     }
 }
