@@ -4,5 +4,6 @@
     <string name="delete_item_prompt">Delete item?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="mark_done">Mark as Done</string>
 
 </resources>
