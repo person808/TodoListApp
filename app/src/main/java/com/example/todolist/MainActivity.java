@@ -1,12 +1,10 @@
 package com.example.todolist;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +16,9 @@ public class MainActivity extends AppCompatActivity
         implements TodoItemAdapter.OnListInteractionListener {
 
     public static final String EXTRA_MESSAGE = "com.example.TodoList.ID";
+    private static final String LIST_STATE = "list_state";
     private TodoViewModel todoViewModel;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
         todoViewModel.addTodoItem(item);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -52,8 +52,19 @@ public class MainActivity extends AppCompatActivity
         todoViewModel.getTodoItems().observe(this, items -> {
             if (items != null) {
                 adapter.submitList(items);
+                // Restore scroll position on rotation
+                if (savedInstanceState != null) {
+                    Parcelable listState = savedInstanceState.getParcelable(LIST_STATE);
+                    recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+                }
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(LIST_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     @Override
