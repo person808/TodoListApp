@@ -14,7 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.TooltipCompat;
+import android.util.Log;
+import android.view.View;
 
+import java.util.Collections;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
@@ -30,11 +33,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
-        Date date = new Date();
-        TodoItem item = new TodoItem(date, "Test title", "test body");
-        todoViewModel.addTodoItem(item);
 
         FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ViewTodoActivity.class);
+            startActivity(intent);
+        });
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         todoViewModel.refreshTodoItems();
         todoViewModel.getTodoItems().observe(this, items -> {
             if (items != null) {
+                Collections.sort(items);
                 adapter.submitList(items);
             }
         });

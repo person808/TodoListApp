@@ -22,7 +22,7 @@ public interface TodoItemDao {
     @Query("SELECT * FROM todoitem WHERE id = :id")
     LiveData<TodoItem> getTodoItem(int id);
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     void insertAll(TodoItem... todoItems);
 
     @Update(onConflict = REPLACE)
