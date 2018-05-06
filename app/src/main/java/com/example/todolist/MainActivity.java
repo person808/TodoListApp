@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.TooltipCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.Date;
 
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity
     private static final String LIST_STATE = "list_state";
     private TodoViewModel todoViewModel;
     private RecyclerView recyclerView;
+    private TodoItemAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,7 @@ public class MainActivity extends AppCompatActivity
         });
         TooltipCompat.setTooltipText(fab, getString(R.string.fab_hint));
 
-        TodoItemAdapter adapter = new TodoItemAdapter(this, todoViewModel);
+        adapter = new TodoItemAdapter(this);
         recyclerView.setAdapter(adapter);
 
         todoViewModel.refreshTodoItems();
@@ -77,7 +81,45 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onItemLongClick(TodoItem item) {
-        return true;
+    public void onItemLongClick(TodoItem item) {
+        adapter.setActionMode(startSupportActionMode(new TodoItemActionModeCallBack()));
+    }
+
+    private class TodoItemActionModeCallBack implements ActionMode.Callback {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            adapter.setMultiSelect(true);
+            mode.getMenuInflater().inflate(R.menu.item_actions, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_done:
+                    for (TodoItem todoItem : adapter.getSelectedItems()) {
+                        todoViewModel.deleteTodoItem(todoItem);
+                    }
+                    mode.finish();
+                    break;
+            }
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            adapter.setMultiSelect(false);
+            adapter.setActionMode(null);
+            todoViewModel.refreshTodoItems();
+            for (TodoItem todoItem : adapter.getSelectedItems()) {
+                todoItem.setSelected(false);
+            }
+            adapter.getSelectedItems().clear();
+        }
     }
 }

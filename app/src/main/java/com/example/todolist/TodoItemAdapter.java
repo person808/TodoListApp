@@ -3,14 +3,11 @@ package com.example.todolist;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,7 +29,6 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         }
     };
     private final OnListInteractionListener listener;
-    private final TodoViewModel todoViewModel;
 
     // Fields needed to implement multi-selection
     private ActionMode actionMode;
@@ -41,14 +37,12 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
 
     public interface OnListInteractionListener {
         void onItemClick(TodoItem item);
-
-        boolean onItemLongClick(TodoItem item);
+        void onItemLongClick(TodoItem item);
     }
 
-    TodoItemAdapter(OnListInteractionListener listener, TodoViewModel todoViewModel) {
+    TodoItemAdapter(OnListInteractionListener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
-        this.todoViewModel = todoViewModel;
     }
 
     @NonNull
@@ -62,6 +56,18 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.update(getItem(position));
+    }
+
+    public List<TodoItem> getSelectedItems() {
+        return selectedItems;
+    }
+
+    public void setMultiSelect(boolean multiSelect) {
+        this.multiSelect = multiSelect;
+    }
+
+    public void setActionMode(ActionMode actionMode) {
+        this.actionMode = actionMode;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -114,49 +120,11 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
-                    actionMode = ((AppCompatActivity) view.getContext()).startSupportActionMode(new TodoItemActionModeCallBack());
+                    listener.onItemLongClick(item);
                     selectItem(item);
-                    return listener.onItemLongClick(item);
                 }
-                return false;
+                return true;
             });
-        }
-    }
-
-    private class TodoItemActionModeCallBack implements ActionMode.Callback {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            multiSelect = true;
-            mode.getMenuInflater().inflate(R.menu.item_actions, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.action_done:
-                    for (TodoItem todoItem : selectedItems) {
-                        todoViewModel.deleteTodoItem(todoItem);
-                    }
-                    mode.finish();
-                    break;
-            }
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            multiSelect = false;
-            todoViewModel.refreshTodoItems();
-            for (TodoItem todoItem : selectedItems) {
-                todoItem.setSelected(false);
-            }
-            selectedItems.clear();
         }
     }
 }
