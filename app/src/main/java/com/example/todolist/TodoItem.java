@@ -24,9 +24,6 @@ public class TodoItem {
     @ColumnInfo(name = "body")
     private String body;
 
-    @Ignore
-    private boolean isSelected = false;
-
     public TodoItem() {
         // Empty constructor
     }
@@ -89,13 +86,5 @@ public class TodoItem {
 
     public void setBody(String body) {
         this.body = body;
-    }
-
-    public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
     }
 }

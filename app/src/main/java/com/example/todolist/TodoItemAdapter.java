@@ -32,7 +32,7 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
 
     // Fields needed to implement multi-selection
     private ActionMode actionMode;
-    private List<TodoItem> selectedItems = new ArrayList<>();
+    private List<Integer> selectedItemPositions = new ArrayList<>();
     private boolean multiSelect = false;
 
     public interface OnListInteractionListener {
@@ -58,8 +58,12 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         holder.update(getItem(position));
     }
 
-    public List<TodoItem> getSelectedItems() {
-        return selectedItems;
+    public TodoItem getItemAtPosition(int position) {
+        return getItem(position);
+    }
+
+    public List<Integer> getSelectedItemPositions() {
+        return selectedItemPositions;
     }
 
     public void setMultiSelect(boolean multiSelect) {
@@ -84,26 +88,24 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             dateView = view.findViewById(R.id.tv_date);
         }
 
-        void selectItem(TodoItem item) {
+        void selectItem() {
             if (multiSelect) {
-                if (selectedItems.contains(item)) {
-                    selectedItems.remove(item);
-                    item.setSelected(false);
+                if (selectedItemPositions.contains(getAdapterPosition())) {
+                    selectedItemPositions.remove((Integer) getAdapterPosition());
                     constraintLayout.setBackgroundColor(Color.WHITE);
                     // End multi-select mode if all selected items are deselected
-                    if (actionMode != null && selectedItems.isEmpty()) {
+                    if (actionMode != null && selectedItemPositions.isEmpty()) {
                         actionMode.finish();
                     }
                 } else {
-                    selectedItems.add(item);
-                    item.setSelected(true);
+                    selectedItemPositions.add(getAdapterPosition());
                     constraintLayout.setBackgroundColor(Color.LTGRAY);
                 }
             }
         }
 
         void update(final TodoItem item) {
-            if (item.isSelected()) {
+            if (selectedItemPositions.contains(getAdapterPosition())) {
                 constraintLayout.setBackgroundColor(Color.LTGRAY);
             } else {
                 constraintLayout.setBackgroundColor(Color.WHITE);
@@ -116,12 +118,12 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
                 if (listener != null && !multiSelect) {
                     listener.onItemClick(item);
                 }
-                selectItem(item);
+                selectItem();
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
                     listener.onItemLongClick(item);
-                    selectItem(item);
+                    selectItem();
                 }
                 return true;
             });

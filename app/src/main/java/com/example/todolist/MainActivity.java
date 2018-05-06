@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private class TodoItemActionModeCallBack implements ActionMode.Callback {
+
+        private boolean buttonClicked = false;
+        private Parcelable recyclerViewState;
+
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             adapter.setMultiSelect(true);
@@ -102,9 +106,12 @@ public class MainActivity extends AppCompatActivity
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_done:
-                    for (TodoItem todoItem : adapter.getSelectedItems()) {
+                    for (int position : adapter.getSelectedItemPositions()) {
+                        TodoItem todoItem = adapter.getItemAtPosition(position);
                         todoViewModel.deleteTodoItem(todoItem);
                     }
+                    buttonClicked = true;
+                    recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
                     mode.finish();
                     break;
             }
@@ -115,11 +122,18 @@ public class MainActivity extends AppCompatActivity
         public void onDestroyActionMode(ActionMode mode) {
             adapter.setMultiSelect(false);
             adapter.setActionMode(null);
-            todoViewModel.refreshTodoItems();
-            for (TodoItem todoItem : adapter.getSelectedItems()) {
-                todoItem.setSelected(false);
+            // If the user marks the TodoItems as done, we can refresh our list and let the
+            // adapter handle the change. Otherwise manually notify the adapter of the change
+            // to prevent flickering.
+            if (buttonClicked) {
+                todoViewModel.refreshTodoItems();
+                recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+            } else {
+                for (int position : adapter.getSelectedItemPositions()) {
+                    adapter.notifyItemChanged(position);
+                }
             }
-            adapter.getSelectedItems().clear();
+            adapter.getSelectedItemPositions().clear();
         }
     }
 }
