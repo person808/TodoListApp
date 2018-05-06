@@ -2,6 +2,7 @@ package com.example.todolist;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 
@@ -22,6 +23,9 @@ public class TodoItem {
 
     @ColumnInfo(name = "body")
     private String body;
+
+    @Ignore
+    private boolean isSelected = false;
 
     public TodoItem() {
         // Empty constructor
@@ -85,5 +89,13 @@ public class TodoItem {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }

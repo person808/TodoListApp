@@ -36,7 +36,7 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
 
     // Fields needed to implement multi-selection
     private ActionMode actionMode;
-    private List<ViewHolder> selectedItems = new ArrayList<>();
+    private List<TodoItem> selectedItems = new ArrayList<>();
     private boolean multiSelect = false;
 
     public interface OnListInteractionListener {
@@ -65,7 +65,6 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        private TodoItem todoItem;
         private final View view;
         private final ConstraintLayout constraintLayout;
         private final TextView titleView;
@@ -81,24 +80,24 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
 
         void selectItem(TodoItem item) {
             if (multiSelect) {
-                if (selectedItems.contains(this)) {
-                    selectedItems.remove(this);
+                if (selectedItems.contains(item)) {
+                    selectedItems.remove(item);
+                    item.setSelected(false);
                     constraintLayout.setBackgroundColor(Color.WHITE);
                     // End multi-select mode if all selected items are deselected
                     if (actionMode != null && selectedItems.isEmpty()) {
                         actionMode.finish();
                     }
                 } else {
-                    selectedItems.add(this);
+                    selectedItems.add(item);
+                    item.setSelected(true);
                     constraintLayout.setBackgroundColor(Color.LTGRAY);
                 }
             }
         }
 
         void update(final TodoItem item) {
-            todoItem = item;
-
-            if (selectedItems.contains(this)) {
+            if (item.isSelected()) {
                 constraintLayout.setBackgroundColor(Color.LTGRAY);
             } else {
                 constraintLayout.setBackgroundColor(Color.WHITE);
@@ -141,12 +140,9 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_done:
-                    List<ViewHolder> itemsToRemove = new ArrayList<>();
-                    for (ViewHolder viewHolder : selectedItems) {
-                        todoViewModel.deleteTodoItem(viewHolder.todoItem);
-                        itemsToRemove.add(viewHolder);
+                    for (TodoItem todoItem : selectedItems) {
+                        todoViewModel.deleteTodoItem(todoItem);
                     }
-                    selectedItems.removeAll(itemsToRemove);
                     mode.finish();
                     break;
             }
@@ -156,10 +152,10 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             multiSelect = false;
-            for (ViewHolder viewHolder : selectedItems) {
-                viewHolder.constraintLayout.setBackgroundColor(Color.WHITE);
-            }
             todoViewModel.refreshTodoItems();
+            for (TodoItem todoItem : selectedItems) {
+                todoItem.setSelected(false);
+            }
             selectedItems.clear();
         }
     }
