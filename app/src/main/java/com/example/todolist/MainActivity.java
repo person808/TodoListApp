@@ -2,9 +2,9 @@ package com.example.todolist;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -23,10 +23,13 @@ public class MainActivity extends AppCompatActivity
     private static final String LIST_STATE = "list_state";
     private static final String MULTI_SELECT_ACTIVE = "multi_select";
     private static final String SELECTED_ITEMS = "selected_items";
+    private static final String ADAPTER_ITEM_COUNT = "adapter_item_count";
+
     private TodoViewModel todoViewModel;
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
     private TodoItemAdapter adapter;
+    private Integer adapterItemCount;
     private boolean fabPressed = false;
     private final RecyclerView.OnScrollListener hideFab = new RecyclerView.OnScrollListener() {
         @Override
@@ -70,13 +73,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState ) {
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             Parcelable listState = savedInstanceState.getParcelable(LIST_STATE);
             // Restore scroll position on rotation
             recyclerView.getLayoutManager().onRestoreInstanceState(listState);
             if (savedInstanceState.getBoolean(MULTI_SELECT_ACTIVE)) {
+                adapterItemCount = savedInstanceState.getInt(ADAPTER_ITEM_COUNT, 0);
                 startMultiSelect(savedInstanceState.getIntegerArrayList(SELECTED_ITEMS));
             }
         }
@@ -88,6 +92,7 @@ public class MainActivity extends AppCompatActivity
         outState.putParcelable(LIST_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
         outState.putBoolean(MULTI_SELECT_ACTIVE, adapter.isMultiSelect());
         outState.putIntegerArrayList(SELECTED_ITEMS, new ArrayList<>(adapter.getSelectedItemPositions()));
+        outState.putInt(ADAPTER_ITEM_COUNT, adapter.getItemCount());
     }
 
     @Override
@@ -99,20 +104,35 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Because this can be called after onMultiSelectFinish, we retain the last state of multi-select
+    // before TodoItemAdapter.ViewHolder.selectItem() is called. This prevents the intent from firing
+    // after multi-select ends when all items are deselected.
     @Override
-    public void onItemClick(TodoItem item) {
-        Intent intent = new Intent(this, ViewTodoActivity.class);
-        intent.putExtra(EXTRA_MESSAGE, item.getId());
-        startActivity(intent);
+    public void onItemClick(TodoItem item, boolean multiSelectState) {
+        if (adapter.isMultiSelect()) {
+            getSupportActionBar().setTitle(
+                    String.format(getString(R.string.selection_title), adapter.getSelectedItemPositions().size(), adapter.getItemCount()));
+        } else if (!multiSelectState) {
+            Intent intent = new Intent(this, ViewTodoActivity.class);
+            intent.putExtra(EXTRA_MESSAGE, item.getId());
+            startActivity(intent);
+        }
     }
 
     @Override
     public void onItemLongClick(TodoItem item) {
         startMultiSelect();
+        // End multi-select when we deselect the last selected item with a long press.
+        if (adapter.getSelectedItemPositions().isEmpty()) {
+            onMultiSelectFinish();
+        }
     }
 
     @Override
     public void onMultiSelectFinish() {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
+        getSupportActionBar().setTitle(R.string.app_name);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         recyclerView.addOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_add_white_24px));
         floatingActionButton.setOnClickListener(viewTodo);
@@ -134,6 +154,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startMultiSelect() {
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorDarkToolbar)));
+        // adapter.getItemCount() returns 0 after rotation so we keep track of it manually
+        int itemCount = adapterItemCount == null ? adapter.getItemCount() : adapterItemCount;
+        getSupportActionBar().setTitle(
+                String.format(getString(R.string.selection_title), adapter.getSelectedItemPositions().size(), itemCount));
+        adapterItemCount = null;
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorDarkStatusBar));
+
         adapter.setMultiSelect(true);
         recyclerView.removeOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
@@ -147,8 +175,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startMultiSelect(List<Integer> selectedItems) {
-        startMultiSelect();
         adapter.setSelectedItemPositions(selectedItems);
+        startMultiSelect();
         for (int position : selectedItems) {
             adapter.notifyItemChanged(position);
         }

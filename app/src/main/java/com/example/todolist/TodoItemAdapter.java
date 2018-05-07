@@ -34,7 +34,7 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
     private boolean multiSelect = false;
 
     public interface OnListInteractionListener {
-        void onItemClick(TodoItem item);
+        void onItemClick(TodoItem item, boolean multiSelectActive);
         void onItemLongClick(TodoItem item);
         void onMultiSelectFinish();
     }
@@ -122,15 +122,17 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             dateView.setText(Util.dateToString(item.getDate()));
 
             view.setOnClickListener((View v) -> {
-                if (listener != null && !multiSelect) {
-                    listener.onItemClick(item);
+                if (listener != null) {
+                    boolean multiSelectState = multiSelect;
+                    selectItem();
+                    listener.onItemClick(item, multiSelectState);
                 }
-                selectItem();
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
-                    listener.onItemLongClick(item);
+                    multiSelect = true;
                     selectItem();
+                    listener.onItemLongClick(item);
                 }
                 return true;
             });
