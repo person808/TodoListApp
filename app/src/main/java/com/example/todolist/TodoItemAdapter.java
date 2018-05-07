@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,13 +30,13 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
     private final OnListInteractionListener listener;
 
     // Fields needed to implement multi-selection
-    private ActionMode actionMode;
     private List<Integer> selectedItemPositions = new ArrayList<>();
     private boolean multiSelect = false;
 
     public interface OnListInteractionListener {
         void onItemClick(TodoItem item);
         void onItemLongClick(TodoItem item);
+        void onMultiSelectFinish();
     }
 
     TodoItemAdapter(OnListInteractionListener listener) {
@@ -66,12 +65,12 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         return selectedItemPositions;
     }
 
-    public void setMultiSelect(boolean multiSelect) {
-        this.multiSelect = multiSelect;
+    public boolean isMultiSelect() {
+        return multiSelect;
     }
 
-    public void setActionMode(ActionMode actionMode) {
-        this.actionMode = actionMode;
+    public void setMultiSelect(boolean multiSelect) {
+        this.multiSelect = multiSelect;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -94,8 +93,8 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
                     selectedItemPositions.remove((Integer) getAdapterPosition());
                     constraintLayout.setBackgroundColor(Color.WHITE);
                     // End multi-select mode if all selected items are deselected
-                    if (actionMode != null && selectedItemPositions.isEmpty()) {
-                        actionMode.finish();
+                    if (listener != null && selectedItemPositions.isEmpty()) {
+                        listener.onMultiSelectFinish();
                     }
                 } else {
                     selectedItemPositions.add(getAdapterPosition());
@@ -126,6 +125,7 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
+                    multiSelect = true;
                     listener.onItemLongClick(item);
                     selectItem();
                 }

@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.TooltipCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.Collections;
 
@@ -21,8 +22,23 @@ public class MainActivity extends AppCompatActivity
     public static final String EXTRA_MESSAGE = "com.example.TodoList.ID";
     private static final String LIST_STATE = "list_state";
     private TodoViewModel todoViewModel;
+    private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
     private TodoItemAdapter adapter;
+    private final RecyclerView.OnScrollListener hideFab = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            if (dy > 0) {
+                floatingActionButton.hide();
+            } else {
+                floatingActionButton.show();
+            }
+        }
+    };
+    private final View.OnClickListener viewTodo = (View v) -> {
+        Intent intent = new Intent(MainActivity.this, ViewTodoActivity.class);
+        startActivity(intent);
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,25 +46,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
+        floatingActionButton = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.recyclerView);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ViewTodoActivity.class);
-            startActivity(intent);
-        });
+
+        floatingActionButton.setOnClickListener(viewTodo);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0) {
-                    fab.hide();
-                } else {
-                    fab.show();
-                }
-            }
-        });
-        TooltipCompat.setTooltipText(fab, getString(R.string.fab_hint));
+        recyclerView.addOnScrollListener(hideFab);
+        TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
 
         adapter = new TodoItemAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -74,68 +78,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemClick(TodoItem item) {
+    public void onBackPressed() {
+        if (adapter.isMultiSelect()) {
+            onMultiSelectFinish();
+        } else {
+            super.onBackPressed();
+        }
+    }
 
+    @Override
+    public void onItemClick(TodoItem item) {
         Intent intent = new Intent(this, ViewTodoActivity.class);
         intent.putExtra(EXTRA_MESSAGE, item.getId());
         startActivity(intent);
-
     }
 
     @Override
     public void onItemLongClick(TodoItem item) {
-        adapter.setActionMode(startSupportActionMode(new TodoItemActionModeCallBack()));
+        recyclerView.removeOnScrollListener(hideFab);
+        floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
+        floatingActionButton.setOnClickListener((View v) -> {
+            removeSelectedItems();
+            onMultiSelectFinish();
+        });
+        floatingActionButton.show();
+        TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.mark_done));
     }
 
-    private class TodoItemActionModeCallBack implements ActionMode.Callback {
+    @Override
+    public void onMultiSelectFinish() {
+        recyclerView.addOnScrollListener(hideFab);
+        floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_add_white_24px));
+        floatingActionButton.setOnClickListener(viewTodo);
+        TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
+        adapter.setMultiSelect(false);
+        adapter.getSelectedItemPositions().clear();
+    }
 
-        private boolean buttonClicked = false;
-        private Parcelable recyclerViewState;
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            adapter.setMultiSelect(true);
-            mode.getMenuInflater().inflate(R.menu.item_actions, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.action_done:
-                    for (int position : adapter.getSelectedItemPositions()) {
-                        TodoItem todoItem = adapter.getItemAtPosition(position);
-                        todoViewModel.deleteTodoItem(todoItem);
-                    }
-                    buttonClicked = true;
-                    recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-                    mode.finish();
-                    break;
-            }
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            adapter.setMultiSelect(false);
-            adapter.setActionMode(null);
-            // If the user marks the TodoItems as done, we can refresh our list and let the
-            // adapter handle the change. Otherwise manually notify the adapter of the change
-            // to prevent flickering.
-            if (buttonClicked) {
-                todoViewModel.refreshTodoItems();
-                recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
-            } else {
-                for (int position : adapter.getSelectedItemPositions()) {
-                    adapter.notifyItemChanged(position);
-                }
-            }
-            adapter.getSelectedItemPositions().clear();
+    public void removeSelectedItems() {
+        for (int position : adapter.getSelectedItemPositions()) {
+            todoViewModel.deleteTodoItem(adapter.getItemAtPosition(position));
         }
     }
 }
