@@ -4,23 +4,25 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.TooltipCompat;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements TodoItemAdapter.OnListInteractionListener {
 
     public static final String EXTRA_MESSAGE = "com.example.TodoList.ID";
     private static final String LIST_STATE = "list_state";
+    private static final String MULTI_SELECT_ACTIVE = "multi_select";
+    private static final String SELECTED_ITEMS = "selected_items";
     private TodoViewModel todoViewModel;
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
@@ -63,19 +65,29 @@ public class MainActivity extends AppCompatActivity
             if (items != null) {
                 Collections.sort(items);
                 adapter.submitList(items);
-                // Restore scroll position on rotation
-                if (savedInstanceState != null) {
-                    Parcelable listState = savedInstanceState.getParcelable(LIST_STATE);
-                    recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-                }
             }
         });
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState ) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            Parcelable listState = savedInstanceState.getParcelable(LIST_STATE);
+            // Restore scroll position on rotation
+            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+            if (savedInstanceState.getBoolean(MULTI_SELECT_ACTIVE)) {
+                startMultiSelect(savedInstanceState.getIntegerArrayList(SELECTED_ITEMS));
+            }
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(LIST_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putBoolean(MULTI_SELECT_ACTIVE, adapter.isMultiSelect());
+        outState.putIntegerArrayList(SELECTED_ITEMS, new ArrayList<>(adapter.getSelectedItemPositions()));
     }
 
     @Override
@@ -96,15 +108,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemLongClick(TodoItem item) {
-        recyclerView.removeOnScrollListener(hideFab);
-        floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
-        floatingActionButton.setOnClickListener((View v) -> {
-            fabPressed = true;
-            removeSelectedItems();
-            onMultiSelectFinish();
-        });
-        floatingActionButton.show();
-        TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.mark_done));
+        startMultiSelect();
     }
 
     @Override
@@ -129,7 +133,28 @@ public class MainActivity extends AppCompatActivity
         adapter.getSelectedItemPositions().clear();
     }
 
-    public void removeSelectedItems() {
+    private void startMultiSelect() {
+        adapter.setMultiSelect(true);
+        recyclerView.removeOnScrollListener(hideFab);
+        floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
+        floatingActionButton.setOnClickListener((View v) -> {
+            fabPressed = true;
+            removeSelectedItems();
+            onMultiSelectFinish();
+        });
+        floatingActionButton.show();
+        TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.mark_done));
+    }
+
+    private void startMultiSelect(List<Integer> selectedItems) {
+        startMultiSelect();
+        adapter.setSelectedItemPositions(selectedItems);
+        for (int position : selectedItems) {
+            adapter.notifyItemChanged(position);
+        }
+    }
+
+    private void removeSelectedItems() {
         for (int position : adapter.getSelectedItemPositions()) {
             todoViewModel.deleteTodoItem(adapter.getItemAtPosition(position));
         }

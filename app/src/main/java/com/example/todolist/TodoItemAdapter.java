@@ -65,6 +65,10 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
         return selectedItemPositions;
     }
 
+    public void setSelectedItemPositions(List<Integer> selectedItemPositions) {
+        this.selectedItemPositions = selectedItemPositions;
+    }
+
     public boolean isMultiSelect() {
         return multiSelect;
     }
@@ -125,7 +129,6 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
             });
             view.setOnLongClickListener((View v) -> {
                 if (listener != null) {
-                    multiSelect = true;
                     listener.onItemLongClick(item);
                     selectItem();
                 }
