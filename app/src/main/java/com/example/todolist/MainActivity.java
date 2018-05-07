@@ -112,6 +112,10 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton.setOnClickListener(viewTodo);
         TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
         adapter.setMultiSelect(false);
+
+        for (int position : adapter.getSelectedItemPositions()) {
+            adapter.notifyItemChanged(position);
+        }
         adapter.getSelectedItemPositions().clear();
     }
 
