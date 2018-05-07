@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +36,8 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
         titleTextView = findViewById(R.id.editText_title);
         bodyTextView = findViewById(R.id.editText_body);
+        Util.setViewBackgroundWithoutResettingPadding(bodyTextView,
+                new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 
         if (id == CREATE_NEW_TODO) {
             todoItem = new TodoItem(new Date(), "", "");

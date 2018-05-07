@@ -8,4 +8,6 @@
     <string name="selection_title">Selected %d of %d items</string>
     <string name="done">Done</string>
     <string name="change_date">Change Date</string>
+    <string name="title_hint">Title</string>
+    <string name="body_hint">Body</string>
 </resources>
