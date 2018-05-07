@@ -11,14 +11,14 @@ public class Util {
         return dateFormat.format(date);
     }
 
-    public static Date updateDate(Date date, int year, int month, int day){
+    public static Date updateDate(Date date, int year, int month, int day) {
         Calendar calendar= Calendar.getInstance();
         calendar.setTime(date);
         calendar.set(year, month, day);
         return calendar.getTime();
     }
 
-    public static Date updateTime(Date date, int hour, int minute){
+    public static Date updateTime(Date date, int hour, int minute) {
         Calendar calendar=Calendar.getInstance();
         calendar.setTime(date);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
