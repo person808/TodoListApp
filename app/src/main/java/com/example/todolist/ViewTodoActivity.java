@@ -52,6 +52,21 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        save();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!hasTitleOrBody()) {
+            todoViewModel.deleteTodoItem(todoItem);
+            todoItem = null;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_todo_menu, menu);
@@ -63,15 +78,6 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         switch (item.getItemId()) {
             case R.id.done:
                 todoViewModel.deleteTodoItem(todoItem);
-                return true;
-            case R.id.save:
-                todoItem.setTitle(titleTextView.getText().toString());
-                todoItem.setBody(bodyTextView.getText().toString());
-                if (id == CREATE_NEW_TODO) {
-                    todoViewModel.addTodoItem(todoItem);
-                } else {
-                    todoViewModel.updateTodoItem(todoItem);
-                }
                 return true;
             case R.id.setTime:
                 DialogFragment newFragment = new DatePickerFragment();
@@ -96,5 +102,22 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         Date newDate = Util.updateTime(todoItem.getDate(), hourOfDay, minute);
         todoItem.setDate(newDate);
         todoViewModel.updateTodoItem(todoItem);
+    }
+
+    private boolean hasTitleOrBody() {
+        return !(titleTextView.getText().length() == 0) || !(bodyTextView.getText().length() == 0);
+    }
+
+    private void save() {
+        if (hasTitleOrBody() && todoItem != null) {
+            todoItem.setTitle(titleTextView.getText().toString());
+            todoItem.setBody(bodyTextView.getText().toString());
+            if (id == CREATE_NEW_TODO) {
+                todoViewModel.addTodoItem(todoItem);
+                id = todoItem.getId();
+            } else {
+                todoViewModel.updateTodoItem(todoItem);
+            }
+        }
     }
 }

@@ -3,18 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/done"
-        android:icon="@drawable/ic_done_white_24dp"
-        android:title="Done"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/setTime"
         android:icon="@drawable/ic_touch_app_white_24dp"
-        android:title="Change Date "
+        android:title="@string/change_date"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/save"
-        android:icon="@drawable/ic_save_white_24dp"
-        android:title="Save"
+        android:id="@+id/done"
+        android:icon="@drawable/ic_done_white_24dp"
+        android:title="@string/done"
         app:showAsAction="ifRoom" />
 </menu>
