@@ -111,7 +111,11 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
                 constraintLayout.setBackgroundColor(Color.WHITE);
             }
 
-            titleView.setText(item.getTitle());
+            if (!item.getTitle().isEmpty()) {
+                titleView.setText(item.getTitle());
+            } else {
+                titleView.setText(item.getBody());
+            }
             dateView.setText(Util.dateToString(item.getDate()));
 
             view.setOnClickListener((View v) -> {
