@@ -13,7 +13,7 @@ import android.support.v7.widget.TooltipCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.Date;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity
         implements TodoItemAdapter.OnListInteractionListener {
@@ -30,12 +30,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
-        Date date = new Date();
-        TodoItem item = new TodoItem(date, "Test title", "test body");
-        todoViewModel.addTodoItem(item);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.recyclerView);
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ViewTodoActivity.class);
+            startActivity(intent);
+        });
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         todoViewModel.refreshTodoItems();
         todoViewModel.getTodoItems().observe(this, items -> {
             if (items != null) {
+                Collections.sort(items);
                 adapter.submitList(items);
                 // Restore scroll position on rotation
                 if (savedInstanceState != null) {

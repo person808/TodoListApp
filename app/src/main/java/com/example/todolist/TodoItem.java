@@ -5,11 +5,12 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 
 @Entity
-public class TodoItem {
+public class TodoItem implements Comparable<TodoItem> {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -54,6 +55,11 @@ public class TodoItem {
         result = 31 * result + title.hashCode();
         result = 31 * result + body.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(@NonNull TodoItem o) {
+        return this.getDate().compareTo(o.getDate());
     }
 
     public int getId() {

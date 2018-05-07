@@ -32,7 +32,7 @@ public class TodoViewModel extends ViewModel {
     }
 
     public void updateTodoItem(TodoItem item) {
-        dao.updateItem(item);
+        AsyncTask.execute(() -> dao.updateItem(item));
     }
 
     public void deleteTodoItem(TodoItem item) {
