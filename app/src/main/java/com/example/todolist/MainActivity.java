@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
     private TodoItemAdapter adapter;
+    private boolean fabPressed = false;
     private final RecyclerView.OnScrollListener hideFab = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.removeOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
         floatingActionButton.setOnClickListener((View v) -> {
+            fabPressed = true;
             removeSelectedItems();
             onMultiSelectFinish();
         });
@@ -113,9 +115,17 @@ public class MainActivity extends AppCompatActivity
         TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
         adapter.setMultiSelect(false);
 
-        for (int position : adapter.getSelectedItemPositions()) {
-            adapter.notifyItemChanged(position);
+        // If the user marks the TodoItems as done, we can refresh our list and let the
+        // adapter handle the change without flickering. Otherwise manually notify the adapter of
+        // the change to remove selection highlight.
+        if (fabPressed) {
+            todoViewModel.refreshTodoItems();
+        } else {
+            for (int position : adapter.getSelectedItemPositions()) {
+                adapter.notifyItemChanged(position);
+            }
         }
+        fabPressed = false;
         adapter.getSelectedItemPositions().clear();
     }
 
