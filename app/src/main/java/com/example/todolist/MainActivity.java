@@ -2,6 +2,7 @@ package com.example.todolist;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         recyclerView.addOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_add_white_24px));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
         floatingActionButton.setOnClickListener(viewTodo);
         TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
         adapter.setMultiSelect(false);
@@ -165,6 +167,7 @@ public class MainActivity extends AppCompatActivity
         adapter.setMultiSelect(true);
         recyclerView.removeOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_done_all_white_24dp));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorFabDoneAction)));
         floatingActionButton.setOnClickListener((View v) -> {
             fabPressed = true;
             removeSelectedItems();

@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorDarkToolbar">#424242</color>
     <color name="colorDarkStatusBar">#1B1B1B</color>
+    <color name="colorFabDoneAction">#d32f2f</color>
 </resources>
