@@ -7,8 +7,9 @@ import java.util.Date;
 
 public class Util {
     public static String dateToString(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        return dateFormat.format(date);
+        DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+        DateFormat dateFormat = DateFormat.getDateInstance();
+        return dateFormat.format(date) + " " + timeFormat.format(date);
     }
 
     public static Date updateDate(Date date, int year, int month, int day) {
