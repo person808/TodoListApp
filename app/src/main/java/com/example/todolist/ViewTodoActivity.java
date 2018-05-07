@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.Date;
@@ -24,6 +26,7 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     private TodoItem todoItem;
     private EditText titleTextView;
     private EditText bodyTextView;
+    private TextView dateTextView;
     private int id;
 
     @Override
@@ -36,19 +39,25 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
         titleTextView = findViewById(R.id.editText_title);
         bodyTextView = findViewById(R.id.editText_body);
-        Util.setViewBackgroundWithoutResettingPadding(bodyTextView,
-                new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+        dateTextView = findViewById(R.id.textView_date);
+        dateTextView.setOnClickListener(v -> startDateSelection());
+
+        Drawable transparentDrawable = new ColorDrawable(getResources().getColor(android.R.color.transparent));
+        Util.setViewBackgroundWithoutResettingPadding(titleTextView, transparentDrawable);
+        Util.setViewBackgroundWithoutResettingPadding(bodyTextView, transparentDrawable);
 
         if (id == CREATE_NEW_TODO) {
             todoItem = new TodoItem(new Date(), "", "");
             titleTextView.setText(todoItem.getTitle());
             bodyTextView.setText(todoItem.getBody());
+            setDateText();
         } else {
             todoViewModel.getTodoItem(id).observe(this, item -> {
                 if (item != null) {
                     todoItem = item;
                     titleTextView.setText(todoItem.getTitle());
                     bodyTextView.setText(todoItem.getBody());
+                    setDateText();
                 }
             });
         }
@@ -83,8 +92,7 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
                 todoViewModel.deleteTodoItem(todoItem);
                 return true;
             case R.id.setTime:
-                DialogFragment newFragment = new DatePickerFragment();
-                newFragment.show(getSupportFragmentManager(), "datePicker");
+                startDateSelection();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -96,6 +104,7 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         Date newDate = Util.updateDate(todoItem.getDate(), year, month, dayOfMonth);
         todoItem.setDate(newDate);
         todoViewModel.updateTodoItem(todoItem);
+        setDateText();
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
@@ -105,6 +114,17 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         Date newDate = Util.updateTime(todoItem.getDate(), hourOfDay, minute);
         todoItem.setDate(newDate);
         todoViewModel.updateTodoItem(todoItem);
+        setDateText();
+    }
+
+    private void startDateSelection() {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
+
+    private void setDateText() {
+        String text = Util.dateToString(todoItem.getDate());
+        dateTextView.setText(text);
     }
 
     private boolean hasTitleOrBody() {
