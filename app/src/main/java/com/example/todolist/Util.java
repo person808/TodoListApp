@@ -16,17 +16,29 @@ public class Util {
     }
 
     public static Date updateDate(Date date, int year, int month, int day) {
-        Calendar calendar= Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.set(year, month, day);
         return calendar.getTime();
     }
 
     public static Date updateTime(Date date, int hour, int minute) {
-        Calendar calendar=Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
+        return calendar.getTime();
+    }
+
+    /**
+     * Generate the date for a new TodoItem.
+     * @return A date object representing 8:00 am of the next day.
+     */
+    public static Date getNewTodoDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.add(Calendar.DATE, 1);
         return calendar.getTime();
     }
 

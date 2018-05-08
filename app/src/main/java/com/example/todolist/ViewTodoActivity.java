@@ -47,7 +47,7 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         Util.setViewBackgroundWithoutResettingPadding(bodyTextView, transparentDrawable);
 
         if (id == CREATE_NEW_TODO) {
-            todoItem = new TodoItem(new Date(), "", "");
+            todoItem = new TodoItem(Util.getNewTodoDate(), "", "");
             titleTextView.setText(todoItem.getTitle());
             bodyTextView.setText(todoItem.getBody());
             setDateText();
