@@ -15,6 +15,10 @@ public class Util {
         return dateFormat.format(date) + " " + timeFormat.format(date);
     }
 
+    public static long dateToLong(Date date) {
+        return date.getTime();
+    }
+
     public static Date updateDate(Date date, int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
