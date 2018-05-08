@@ -45,6 +45,7 @@ public class TodoItem implements Comparable<TodoItem> {
         TodoItem todoItem = (TodoItem) o;
 
         if (id != todoItem.id) return false;
+        if (archived != todoItem.archived) return false;
         if (!date.equals(todoItem.date)) return false;
         if (!title.equals(todoItem.title)) return false;
         return body.equals(todoItem.body);
@@ -56,6 +57,7 @@ public class TodoItem implements Comparable<TodoItem> {
         result = 31 * result + date.hashCode();
         result = 31 * result + title.hashCode();
         result = 31 * result + body.hashCode();
+        result = 31 * result + (archived ? 1 : 0);
         return result;
     }
 
