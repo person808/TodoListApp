@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Todo List</string>
     <string name="fab_hint">New Todo</string>
-    <string name="delete_item_prompt">Delete item?</string>
+    <string name="delete_item_prompt">Delete selected items?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="mark_done">Mark as Done</string>
@@ -10,4 +10,9 @@
     <string name="change_date">Change Date</string>
     <string name="title_hint">Title</string>
     <string name="body_hint">Body</string>
+    <string name="view_archive">View Archived Todos</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="view_unarchived_todos">View Todos</string>
+    <string name="archived_todo_label">Archived Todos</string>
+    <string name="permanent_action_warning">This cannot be undone.</string>
 </resources>

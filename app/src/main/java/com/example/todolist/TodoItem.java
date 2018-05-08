@@ -25,6 +25,9 @@ public class TodoItem implements Comparable<TodoItem> {
     @ColumnInfo(name = "body")
     private String body;
 
+    @ColumnInfo(name = "archived")
+    private boolean archived = false;
+
     public TodoItem() {
         // Empty constructor
     }
@@ -92,5 +95,13 @@ public class TodoItem implements Comparable<TodoItem> {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }

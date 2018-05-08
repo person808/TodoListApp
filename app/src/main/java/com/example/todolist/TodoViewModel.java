@@ -10,6 +10,7 @@ public class TodoViewModel extends ViewModel {
 
     private TodoItemDao dao;
     private LiveData<List<TodoItem>> todoItems;
+
     public TodoViewModel() {
         DaoRepository daoRepository = new DaoRepository();
         dao = daoRepository.getDao();
@@ -17,6 +18,14 @@ public class TodoViewModel extends ViewModel {
 
     public void refreshTodoItems() {
         todoItems = dao.getAll();
+    }
+
+    public void refreshTodoItems(boolean getArchived) {
+        if (getArchived) {
+            todoItems = dao.getAllArchived();
+        } else {
+            todoItems = dao.getAllUnarchived();
+        }
     }
 
     public LiveData<List<TodoItem>> getTodoItems() {
@@ -37,5 +46,10 @@ public class TodoViewModel extends ViewModel {
 
     public void deleteTodoItem(TodoItem item) {
         AsyncTask.execute(() -> dao.delete(item));
+    }
+
+    public void setArchivedStatus(TodoItem item, boolean archived) {
+        item.setArchived(archived);
+        updateTodoItem(item);
     }
 }

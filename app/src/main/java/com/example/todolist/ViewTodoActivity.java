@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -82,6 +83,13 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_todo_menu, menu);
+        if (todoItem.isArchived()) {
+            menu.findItem(R.id.unarchive).setVisible(true);
+            menu.findItem(R.id.done).setVisible(false);
+        } else {
+            menu.findItem(R.id.unarchive).setVisible(false);
+            menu.findItem(R.id.done).setVisible(true);
+        }
         return true;
     }
 
@@ -89,7 +97,14 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.done:
-                todoViewModel.deleteTodoItem(todoItem);
+                todoViewModel.setArchivedStatus(todoItem, true);
+                save();
+                invalidateOptionsMenu();
+                return true;
+            case R.id.unarchive:
+                todoViewModel.setArchivedStatus(todoItem, false);
+                save();
+                invalidateOptionsMenu();
                 return true;
             case R.id.setTime:
                 startDateSelection();

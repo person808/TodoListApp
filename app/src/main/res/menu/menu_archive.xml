@@ -3,19 +3,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/setTime"
-        android:icon="@drawable/ic_touch_app_white_24dp"
-        android:title="@string/change_date"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/unarchive"
         android:icon="@drawable/ic_unarchive_white_24dp"
         android:title="@string/unarchive"
         android:visible="false"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/done"
-        android:icon="@drawable/ic_done_white_24dp"
-        android:title="@string/done"
+        android:id="@+id/delete"
+        android:icon="@drawable/ic_delete_forever_white_24dp"
+        android:title="@string/delete"
+        android:visible="false"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/view_archive_toggle"
+        android:icon="@drawable/ic_unarchive_white_24dp"
+        android:title="@string/view_archive"
+        app:showAsAction="never" />
 </menu>

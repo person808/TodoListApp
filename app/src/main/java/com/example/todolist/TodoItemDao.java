@@ -19,6 +19,12 @@ public interface TodoItemDao {
     @Query("SELECT * FROM todoitem")
     LiveData<List<TodoItem>> getAll();
 
+    @Query("SELECT * FROM todoitem WHERE archived = 0")
+    LiveData<List<TodoItem>> getAllUnarchived();
+
+    @Query("SELECT * FROM todoitem WHERE archived = 1")
+    LiveData<List<TodoItem>> getAllArchived();
+
     @Query("SELECT * FROM todoitem WHERE id = :id")
     LiveData<TodoItem> getTodoItem(int id);
 
