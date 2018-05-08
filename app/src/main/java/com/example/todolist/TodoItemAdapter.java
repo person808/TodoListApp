@@ -19,7 +19,7 @@ public class TodoItemAdapter extends ListAdapter<TodoItem, TodoItemAdapter.ViewH
     private static final DiffUtil.ItemCallback<TodoItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<TodoItem>() {
         @Override
         public boolean areItemsTheSame(TodoItem oldItem, TodoItem newItem) {
-            return oldItem.getId() == newItem.getId();
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override

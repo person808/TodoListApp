@@ -32,7 +32,7 @@ public class TodoViewModel extends ViewModel {
         return todoItems;
     }
 
-    public LiveData<TodoItem> getTodoItem(int id) {
+    public LiveData<TodoItem> getTodoItem(String id) {
         return dao.getTodoItem(id);
     }
 

@@ -21,20 +21,18 @@ import java.util.Date;
 
 public class ViewTodoActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
-    private static final int CREATE_NEW_TODO = -1;
     private TodoViewModel todoViewModel;
     private TodoItem todoItem;
     private EditText titleTextView;
     private EditText bodyTextView;
     private TextView dateTextView;
-    private int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_todo);
         Intent intent = getIntent();
-        id = intent.getIntExtra(MainActivity.EXTRA_MESSAGE, CREATE_NEW_TODO);
+        String id = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         todoViewModel = ViewModelProviders.of(this).get(TodoViewModel.class);
         titleTextView = findViewById(R.id.editText_title);
@@ -46,7 +44,7 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
         Util.setViewBackgroundWithoutResettingPadding(titleTextView, transparentDrawable);
         Util.setViewBackgroundWithoutResettingPadding(bodyTextView, transparentDrawable);
 
-        if (id == CREATE_NEW_TODO) {
+        if (id == null) {
             todoItem = new TodoItem(Util.getNewTodoDate(), "", "");
             titleTextView.setText(todoItem.getTitle());
             bodyTextView.setText(todoItem.getBody());
@@ -71,9 +69,8 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
 
     @Override
     public void onBackPressed() {
-        if (!hasTitleOrBody()) {
+        if (!hasTitleOrBody() && todoItem.getId() != null) {
             todoViewModel.deleteTodoItem(todoItem);
-            todoItem = null;
         }
         super.onBackPressed();
     }
@@ -117,9 +114,9 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Date newDate = Util.updateDate(todoItem.getDate(), year, month, dayOfMonth);
         todoItem.setDate(newDate);
-        todoViewModel.updateTodoItem(todoItem);
+        save();
         setDateText();
-        DialogFragment newFragment = new TimePickerFragment();
+        DialogFragment newFragment = TimePickerFragment.newInstance(todoItem.getDate());
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
@@ -127,12 +124,12 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Date newDate = Util.updateTime(todoItem.getDate(), hourOfDay, minute);
         todoItem.setDate(newDate);
-        todoViewModel.updateTodoItem(todoItem);
+        save();
         setDateText();
     }
 
     private void startDateSelection() {
-        DialogFragment newFragment = new DatePickerFragment();
+        DialogFragment newFragment = DatePickerFragment.newInstance(todoItem.getDate());
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
@@ -146,15 +143,12 @@ public class ViewTodoActivity extends AppCompatActivity implements DatePickerDia
     }
 
     private void save() {
-        if (hasTitleOrBody() && todoItem != null) {
-            todoItem.setTitle(titleTextView.getText().toString());
-            todoItem.setBody(bodyTextView.getText().toString());
-            if (id == CREATE_NEW_TODO) {
-                todoViewModel.addTodoItem(todoItem);
-                id = todoItem.getId();
-            } else {
-                todoViewModel.updateTodoItem(todoItem);
-            }
+        todoItem.setTitle(titleTextView.getText().toString());
+        todoItem.setBody(bodyTextView.getText().toString());
+        if (hasTitleOrBody() && todoItem.getId() == null) {
+            todoViewModel.addTodoItem(todoItem);
+        } else if (hasTitleOrBody()) {
+            todoViewModel.updateTodoItem(todoItem);
         }
     }
 }

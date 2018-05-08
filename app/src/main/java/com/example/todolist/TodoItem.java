@@ -1,31 +1,19 @@
 package com.example.todolist;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
+
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Date;
 
-@Entity
+@IgnoreExtraProperties
 public class TodoItem implements Comparable<TodoItem> {
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-
-    @ColumnInfo(name = "date")
-    @TypeConverters(DateConverter.class)
+    private String id;
     private Date date;
-
-    @ColumnInfo(name = "title")
     private String title;
-
-    @ColumnInfo(name = "body")
     private String body;
-
-    @ColumnInfo(name = "archived")
-    private boolean archived = false;
+    private boolean archived;
 
     public TodoItem() {
         // Empty constructor
@@ -35,6 +23,14 @@ public class TodoItem implements Comparable<TodoItem> {
         this.date = date;
         this.title = title;
         this.body = body;
+        this.archived = false;
+    }
+
+    public TodoItem(Date date, String title, String body, boolean archived) {
+        this.date = date;
+        this.title = title;
+        this.body = body;
+        this.archived = archived;
     }
 
     @Override
@@ -44,8 +40,8 @@ public class TodoItem implements Comparable<TodoItem> {
 
         TodoItem todoItem = (TodoItem) o;
 
-        if (id != todoItem.id) return false;
         if (archived != todoItem.archived) return false;
+        if (!id.equals(todoItem.id)) return false;
         if (!date.equals(todoItem.date)) return false;
         if (!title.equals(todoItem.title)) return false;
         return body.equals(todoItem.body);
@@ -53,7 +49,7 @@ public class TodoItem implements Comparable<TodoItem> {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = id.hashCode();
         result = 31 * result + date.hashCode();
         result = 31 * result + title.hashCode();
         result = 31 * result + body.hashCode();
@@ -66,11 +62,11 @@ public class TodoItem implements Comparable<TodoItem> {
         return this.getDate().compareTo(o.getDate());
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
