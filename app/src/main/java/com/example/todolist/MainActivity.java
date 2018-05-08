@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity
     private static final String ADAPTER_ITEM_COUNT = "adapter_item_count";
     private static final String VIEW_MODE_STATE = "view_mode_state";
     private static VIEW_MODES VIEW_MODE = VIEW_MODES.UNARCHIVED;
-
     private enum VIEW_MODES {
         ARCHIVED, UNARCHIVED
     }
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     };
-    private final View.OnClickListener viewTodo = (View v) -> {
+    private final View.OnClickListener createNewTodo = (View v) -> {
         Intent intent = new Intent(MainActivity.this, ViewTodoActivity.class);
         startActivity(intent);
     };
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         floatingActionButton = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.recyclerView);
 
-        floatingActionButton.setOnClickListener(viewTodo);
+        floatingActionButton.setOnClickListener(createNewTodo);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.addOnScrollListener(hideFab);
         TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
@@ -210,7 +209,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.addOnScrollListener(hideFab);
         floatingActionButton.setImageDrawable(getDrawable(R.drawable.ic_add_white_24px));
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-        floatingActionButton.setOnClickListener(viewTodo);
+        floatingActionButton.setOnClickListener(createNewTodo);
         floatingActionButton.show();
         TooltipCompat.setTooltipText(floatingActionButton, getString(R.string.fab_hint));
 
