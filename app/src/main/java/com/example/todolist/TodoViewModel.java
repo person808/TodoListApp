@@ -8,7 +8,7 @@ import java.util.List;
 
 public class TodoViewModel extends ViewModel {
 
-    private TodoItemDao dao;
+    private final TodoItemDao dao;
     private LiveData<List<TodoItem>> todoItems;
 
     public TodoViewModel() {
