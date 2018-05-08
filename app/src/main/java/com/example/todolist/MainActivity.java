@@ -169,8 +169,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemClick(TodoItem item, boolean multiSelectState) {
         if (adapter.isMultiSelect()) {
-            getSupportActionBar().setTitle(
-                    String.format(getString(R.string.selection_title), adapter.getSelectedItemPositions().size(), adapter.getItemCount()));
+            updateTitleForMultiSelect();
         } else if (!multiSelectState) {
             Intent intent = new Intent(this, ViewTodoActivity.class);
             intent.putExtra(EXTRA_MESSAGE, item.getId());
@@ -234,10 +233,7 @@ public class MainActivity extends AppCompatActivity
 
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorDarkToolbar)));
         // adapter.getItemCount() returns 0 after rotation so we keep track of it manually
-        int itemCount = adapterItemCount == null ? adapter.getItemCount() : adapterItemCount;
-        getSupportActionBar().setTitle(
-                String.format(getString(R.string.selection_title), adapter.getSelectedItemPositions().size(), itemCount));
-        adapterItemCount = null;
+        updateTitleForMultiSelect();
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorDarkStatusBar));
         invalidateOptionsMenu();
 
@@ -261,6 +257,13 @@ public class MainActivity extends AppCompatActivity
         for (int position : selectedItems) {
             adapter.notifyItemChanged(position);
         }
+    }
+
+    private void updateTitleForMultiSelect() {
+        int itemCount = adapterItemCount == null ? adapter.getItemCount() : adapterItemCount;
+        getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.selection_title,
+                itemCount, itemCount, adapter.getSelectedItemPositions().size()));
+        adapterItemCount = null;
     }
 
     private void removeSelectedItems() {

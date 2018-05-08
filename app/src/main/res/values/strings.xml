@@ -5,7 +5,6 @@
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="mark_done">Mark as Done</string>
-    <string name="selection_title">Selected %d of %d items</string>
     <string name="done">Done</string>
     <string name="change_date">Change Date</string>
     <string name="title_hint">Title</string>
@@ -15,4 +14,8 @@
     <string name="view_unarchived_todos">View Todos</string>
     <string name="archived_todo_label">Archived Todos</string>
     <string name="permanent_action_warning">This cannot be undone.</string>
+    <plurals name="selection_title">
+        <item quantity="one">Selected %2$d of %1$d item</item>
+        <item quantity="other">Selected %2$d of %1$d items</item>
+    </plurals>
 </resources>
