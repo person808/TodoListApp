@@ -19,10 +19,12 @@ public class TodoListApp extends Application {
                 if (task.isSuccessful()) {
                     Log.d("", "AUTHENTICATED");
                     FirebaseDatabase.getInstance().getReference().push().setValue(auth.getCurrentUser().getUid());
+                    uid = auth.getCurrentUser().getUid();
                 }
             });
+        } else {
+            uid = auth.getCurrentUser().getUid();
         }
-        uid = auth.getCurrentUser().getUid();
     }
 
     public static String getUid() {
